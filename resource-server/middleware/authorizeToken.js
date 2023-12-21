@@ -3,8 +3,7 @@ const dotenv = require('dotenv');
 const stytch = require('stytch');
 
 dotenv.config();
-
-//stytch
+//Initializing Stytch client
 const client = new stytch.Client({
   project_id: process.env.STYTCH_PROJECT_ID,
   secret: process.env.STYTCH_SECRET,
@@ -12,7 +11,7 @@ const client = new stytch.Client({
 
 
 // Middleware for authenticating access token
-const authenticateTokenMiddleware = (requiredScope) => {
+const authorizeTokenMiddleware = (requiredScope) => {
   return async (req, res, next) => {
     try {
       const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
@@ -36,4 +35,4 @@ const authenticateTokenMiddleware = (requiredScope) => {
   }
 }
 
-module.exports = authenticateTokenMiddleware;
+module.exports = authorizeTokenMiddleware;

@@ -83,9 +83,9 @@ async function initiatePayment(accessToken) {
             'Content-Type': 'application/json',
             },
         });
-        const {customerName, balance} = response.data
+        const {customerName, walletBalance} = response.data
         // Check if the balance is sufficient for the transaction
-        if (balance >= paymentDetails.debitAmount) {
+        if (walletBalance >= paymentDetails.debitAmount) {
             // Proceed with the transaction logic
             console.log('Transaction successful!');
             return `${customerName} your payment of ${paymentDetails.debitAmount} to ${paymentDetails.destinationWalletId} was successful!`;

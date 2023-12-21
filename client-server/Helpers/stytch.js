@@ -5,7 +5,6 @@ const dotenv = require('dotenv');
 const router = express.Router();
 
 dotenv.config();
-console.log(process.env.STYTCH_PROJECT_ID, process.env.STYTCH_SECRET)
 // Initializing Stytch client
 const client = new stytch.Client({
     project_id: process.env.STYTCH_PROJECT_ID,
