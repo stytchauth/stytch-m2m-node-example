@@ -18,7 +18,7 @@ async function storeCredentials(db, credentials) {
    }
 }
 
-// Helper Function to get retrieve access token from MongoDB
+// Helper Function to retrieve access token from MongoDB
 async function getAccessToken(db) {
     try {
         // Retrieve the cached access token information from MongoDB
@@ -29,7 +29,7 @@ async function getAccessToken(db) {
     }
 }
 
-// helper function to Store the access token and its expiration time in MongoDB
+// helper function to store the access token and its expiration time in MongoDB
 async function storeAccessToken(db, accessToken, expiresAt) {
     try {
         await db.collection('accessToken').updateOne({}, { $set: { access_token: accessToken, expires_at: expiresAt } }, { upsert: true });

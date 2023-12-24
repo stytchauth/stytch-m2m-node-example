@@ -17,20 +17,20 @@ app.use(helmet());
 app.use(morgan('combined'));
 app.use(express.json());
 
-//customer details
-const customersDetail = [
-    { customerId: '123456', customerName: 'john_doe', walletId: 'gh980ko098', walletBalance: 1790 },
-    { customerId: '165432', customerName: 'jane_doe', walletId: '8jkoi90ghk', walletBalance: 970 },
+// Customer details on the wallet server
+const customerDetails = [
+    { customerId: '67uhjio098uhgt6l', customerName: 'john_doe', walletId: 'oipk9ifgl7yto9w', walletBalance: 1790 },
+    { customerId: 'plu8iio0t3uhh06h', customerName: 'jane_doe', walletId: 'ui099jlolrrao6g', walletBalance: 970 },
   ];
 
-//routes
+// Routes
 app.post('/api/check-balance', authorizeToken('read:users'), (req, res) => {
   const {customerId} = req.body;
-  const customer = customersDetail.find((customer) => customer.customerId === customerId);
+  const customer = customerDetails.find((customer) => customer.customerId === customerId);
   if(customer){
     res.json({customerName: customer.customerName, walletId: customer.walletId, walletBalance: customer.walletBalance})
   }else{
-    res.status(400).json({error: 'Invalid Customer'})
+    res.status(400).json({error: 'Invalid customer'})
   }
 });
 

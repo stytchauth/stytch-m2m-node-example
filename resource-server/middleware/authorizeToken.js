@@ -10,7 +10,7 @@ const client = new stytch.Client({
 });
 
 
-// Middleware for authenticating access token
+// Middleware for authorizing access token
 const authorizeTokenMiddleware = (requiredScope) => {
   return async (req, res, next) => {
     try {

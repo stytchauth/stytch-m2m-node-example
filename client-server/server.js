@@ -10,6 +10,7 @@ const stytchHelpers = require('./Helpers/stytch')
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT;
+
 // Connect to MongoDB
 async function connectToMongoDB() {
     const mongoURI = process.env.MONGODB_URI;
@@ -41,30 +42,30 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 let db;
 
-//mount stytch routes
+// Mount stytch routes
 app.use(stytchHelpers.router)
 
-// payment details
+// Payment details of the pending outgoing debit
 const paymentDetails = {
-    customerId: '123456',
+    customerId: '67uhjio098uhgt6l',
     debitAmount: 769,
-    destinationWalletId: 'yh809ikol7',
+    destinationWalletId: 'yh809ikol7plo98',
   };
 
-//routes
+// Routes
 // Endpoint to initiate the payment process
 app.get('/initiate-payment', async (req, res) => {
-   //create an m2m client
+   // Create an m2m client
    try{
     // Connect to MongoDB and set up routes and server
     db = await connectToMongoDB();
     const m2mClient = await stytchHelpers.createM2MClient(db);
     // Get M2M access token (cached if possible)
     const accessToken = await stytchHelpers.getM2MAccessToken(db, m2mClient.client_id, m2mClient.client_secret);
-    // initiate payment
-    const accountResponse = await initiatePayment(accessToken);
+    // Initiate payment
+    const walletResponse = await initiatePayment(accessToken);
 
-    res.json(accountResponse);
+    res.json(walletResponse);
    }catch (err){
         console.error(err.response ? err.response.data : err.message);
             res.status(err.response ? err.response.status : 500).json({
@@ -74,10 +75,10 @@ app.get('/initiate-payment', async (req, res) => {
 });
 
 async function initiatePayment(accessToken) {
-    const accountServerUrl = 'http://localhost:4000/api/check-balance'; // Replace with your resource server URL
+    const walletServerUrl = 'http://localhost:4000/api/check-balance'; // Replace with your resource server URL
     try {
-        //request customer balance from account server
-        const response = await axios.post(accountServerUrl, paymentDetails, {
+        // Request customer balance from wallet server
+        const response = await axios.post(walletServerUrl, paymentDetails, {
             headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
@@ -93,7 +94,7 @@ async function initiatePayment(accessToken) {
         console.log('Insufficient balance. Transaction failed.');
         return 'Insufficient balance. Transaction failed.';
     } catch (error) {
-      console.error('Error connecting with the Account Server:', error.response ? error.response.data : error.message);
+      console.error('Error connecting with the Wallet Server:', error.response ? error.response.data : error.message);
       throw error;
     }
 }

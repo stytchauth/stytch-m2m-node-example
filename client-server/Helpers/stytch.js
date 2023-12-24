@@ -11,10 +11,49 @@ const client = new stytch.Client({
     secret: process.env.STYTCH_SECRET,
 });
 
-//Route to search for an m2m client
+ // Route to create new M2M client 
+ async function createM2MClient(db) {
+  try {
+      // Check if M2M credentials are available in MongoDB
+      const storedCredentials = await mongodbHelpers.getCredentials(db);
+      if (!storedCredentials.client_id || !storedCredentials.client_secret) {
+          // If not available, create a new m2m client and store the credentials
+          console.log('m2m client credentials is not available')
+          const params = {
+              client_name: 'payment-service',
+              scopes: ['read:users', 'write:users'],
+          };
+          const response = await client.m2m.clients.create(params)
+          //set time to rotate secret
+          const expiresAt = Date.now() + 1800 * 1000; // Set expiration time to 30 mins (adjust as needed)
+          const m2mClient = {
+              client_id: response.m2m_client.client_id,
+              client_secret: response.m2m_client.client_secret,
+              expiresAt: expiresAt
+          }
+          // Store the new credentials securely in MongoDB
+          await mongodbHelpers.storeCredentials(db, m2mClient);
+          return m2mClient
+      }else if(Date.now() > storedCredentials.expiresAt){
+          //30 mins elapsed, start secret rotation
+          const m2mClient = await startSecretRotation(db, storedCredentials.client_id);
+
+          //complete the rotation
+          await completeSecretRotation(storedCredentials.client_id);
+          return m2mClient;
+      }
+      
+      return storedCredentials;
+  } catch (err) {
+    console.error('Error creating M2M client:', err.response);
+    throw err;
+  }
+}
+
+// Route to search for an M2M client
 router.get('/search-m2m-client', async (req, res) => {
     try {
-      // Call Stytch endpoint to search for the m2m client
+      // Call Stytch endpoint to search for the M2M client
       const params = {
         limit: 100,
         query: {
@@ -32,21 +71,21 @@ router.get('/search-m2m-client', async (req, res) => {
         search_Result: response,
       });
     } catch (err) {
-      console.error('Error searching for m2m client:', err.response ? err.response.data : err.message);
+      console.error('Error searching for M2M client:', err.response ? err.response.data : err.message);
       res.status(err.response ? err.response.status : 500).json({
         error: err.response ? err.response.data : 'Internal Server Error',
       });
     }
   });
 
-  // Route to update an m2m client
+// Route to update an M2M client
 router.put('/update-m2m-client/:clientId', async (req, res) => {
     try {
       const clientId = req.params.clientId;
       const status = req.body.status;
       console.log(clientId, status)
   
-      // Call Stytch endpoint to update the m2m client
+      // Call Stytch endpoint to update the M2M client
       const params = {
         client_id: clientId,
         status: status,
@@ -58,53 +97,16 @@ router.put('/update-m2m-client/:clientId', async (req, res) => {
         updated_m2mClient: response,
       });
     } catch (err) {
-      console.error('Error updating m2m client:', err.response ? err.response.data : err.message);
+      console.error('Error updating M2M client:', err.response ? err.response.data : err.message);
       res.status(err.response ? err.response.status : 500).json({
         error: err.response ? err.response.data : 'Internal Server Error',
       });
     }
   });
 
-  //create new m2m client 
-  async function createM2MClient(db) {
-    try {
-        // Check if M2M credentials are available in MongoDB
-        const storedCredentials = await mongodbHelpers.getCredentials(db);
-        if (!storedCredentials.client_id || !storedCredentials.client_secret) {
-            // If not available, create a new m2m client and store the credentials
-            console.log('m2m client credentials is not available')
-            const params = {
-                client_name: 'payment-service',
-                scopes: ['read:users', 'write:users'],
-            };
-            const response = await client.m2m.clients.create(params)
-            //set time to rotate secret
-            const expiresAt = Date.now() + 1800 * 1000; // Set expiration time to 30 mins (adjust as needed)
-            const m2mClient = {
-                client_id: response.m2m_client.client_id,
-                client_secret: response.m2m_client.client_secret,
-                expiresAt: expiresAt
-            }
-            // Store the new credentials securely in MongoDB
-            await mongodbHelpers.storeCredentials(db, m2mClient);
-            return m2mClient
-        }else if(Date.now() > storedCredentials.expiresAt){
-            //30 mins elapsed, start secret rotation
-            const m2mClient = await startSecretRotation(db, storedCredentials.client_id);
+ 
 
-            //complete the rotation
-            await completeSecretRotation(storedCredentials.client_id);
-            return m2mClient;
-        }
-        
-        return storedCredentials;
-    } catch (err) {
-      console.error('Error creating m2m client:', err.response);
-      throw err;
-    }
-  }
-
-  //get m2m access token
+// Route to get M2M access token
 async function getM2MAccessToken(db, clientId, clientSecret){
     try {
         // Get M2M access token (cached if possible)
@@ -121,18 +123,18 @@ async function getM2MAccessToken(db, clientId, clientSecret){
             grant_type: 'client_credentials'
         };
         const response = await client.m2m.token(params);
-        //store new access token to db
+        // Save new access token to db
         const expiresAt = Date.now() + response.expires_in * 1000; // Set expiration time to 1 hour (adjust as needed)
         await mongodbHelpers.storeAccessToken(db, response.access_token, expiresAt);
         
         return response.access_token;
     }catch(err){
-        console.error('Error getting m2m access token:', err.response);
+        console.error('Error getting M2M access token:', err.response);
         throw err;
     }
 }
 
-  //start secret rotation
+  // Route to start secret rotation
   async function startSecretRotation(db, client_id){
     try{
         //start the secret rotation
@@ -157,10 +159,10 @@ async function getM2MAccessToken(db, clientId, clientSecret){
     }
   }
   
-//complete the rotation
+// Route to complete the secret rotation
 async function completeSecretRotation(client_id){
     try{
-        //permanently switch the client_secret for the next_client_secret
+        // Permanently switch the client_secret for the next_client_secret
         const params = {
             client_id: client_id,
         };
