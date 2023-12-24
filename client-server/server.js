@@ -23,9 +23,7 @@ async function connectToMongoDB() {
                 deprecationErrors: true,
             },
             useNewUrlParser: true,
-            // sslValidate: true, // Enable SSL validation
-            // tlsCAFile: process.env.MONGODB_CA_FILE, // Path to CA certificate file
-            // tlsCertificateKeyFile: process.env.MONGODB_CERT_KEY_FILE, // Path to client certificate and private key file
+
         });
         console.log('Connected to MongoDB');
         return client.db('m2m_credentials');
@@ -52,7 +50,6 @@ const paymentDetails = {
     destinationWalletId: 'yh809ikol7plo98',
   };
 
-// Routes
 // Endpoint to initiate the payment process
 app.get('/initiate-payment', async (req, res) => {
    // Create an m2m client
