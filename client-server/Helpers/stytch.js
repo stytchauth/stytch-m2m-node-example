@@ -104,8 +104,6 @@ router.put('/update-m2m-client/:clientId', async (req, res) => {
     }
   });
 
- 
-
 // Route to get M2M access token
 async function getM2MAccessToken(db, clientId, clientSecret){
     try {
