@@ -132,30 +132,30 @@ async function getM2MAccessToken(db, clientId, clientSecret){
     }
 }
 
-  // Route to start secret rotation
-  async function startSecretRotation(db, client_id){
-    try{
-        //start the secret rotation
-        const params = {
-            client_id: client_id
-        }
-        const response = await client.m2m.clients.secrets.rotateStart(params)
-         //time to rotate secret
-         const expiresAt = Date.now() + 1800 * 1000; // Set expiration time to 30 mins (adjust as needed)
-         //switch the old client_secret for the next_client_secret
-        const m2mClient = {
-            client_id: response.m2m_client.client_id,
-            client_secret: response.m2m_client.next_client_secret,
-            expiresAt: expiresAt
-        }
-        // Store the new credentials securely in MongoDB
-        await mongodbHelpers.storeCredentials(db, m2mClient);
-        return m2mClient;
-    }catch(err){
-        console.error('Error starting secret rotation:', err.response);
-        throw err;
-    }
+// Route to start secret rotation
+async function startSecretRotation(db, client_id){
+  try{
+      //start the secret rotation
+      const params = {
+          client_id: client_id
+      }
+      const response = await client.m2m.clients.secrets.rotateStart(params)
+        //time to rotate secret
+        const expiresAt = Date.now() + 1800 * 1000; // Set expiration time to 30 mins (adjust as needed)
+        //switch the old client_secret for the next_client_secret
+      const m2mClient = {
+          client_id: response.m2m_client.client_id,
+          client_secret: response.m2m_client.next_client_secret,
+          expiresAt: expiresAt
+      }
+      // Store the new credentials securely in MongoDB
+      await mongodbHelpers.storeCredentials(db, m2mClient);
+      return m2mClient;
+  }catch(err){
+      console.error('Error starting secret rotation:', err.response);
+      throw err;
   }
+}
   
 // Route to complete the secret rotation
 async function completeSecretRotation(client_id){
