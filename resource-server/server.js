@@ -23,7 +23,7 @@ const walletInfo = [
     { customerId: 'plu8iio0t3uhh06h', customerName: 'jane_doe', walletId: 'ui099jlolrrao6g', walletBalance: 970 },
   ];
 
-// Routes
+// Route
 app.post('/api/check-balance', authorizeToken('read:users'), (req, res) => {
   const {customerId} = req.body;
   const customer = walletInfo.find((customer) => customer.customerId === customerId);

@@ -32,6 +32,7 @@ async function connectToMongoDB() {
         throw err;
     }
 }
+
 // Middleware
 app.use(cors());
 app.use(helmet());
