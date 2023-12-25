@@ -17,7 +17,7 @@ app.use(helmet());
 app.use(morgan('combined'));
 app.use(express.json());
 
-// Wallet details of the customer on the wallet service
+// Customer's wallet details
 const walletInfo = [
     { customerId: '67uhjio098uhgt6l', customerName: 'john_doe', walletId: 'oipk9ifgl7yto9w', walletBalance: 1790 },
     { customerId: 'plu8iio0t3uhh06h', customerName: 'jane_doe', walletId: 'ui099jlolrrao6g', walletBalance: 970 },
