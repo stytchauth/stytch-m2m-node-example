@@ -11,7 +11,7 @@ const client = new stytch.Client({
     secret: process.env.STYTCH_SECRET,
 });
 
- // Route to create new M2M client 
+ // Create new M2M client 
  async function createM2MClient(db) {
   try {
       // Check if M2M credentials are available in MongoDB
@@ -50,7 +50,7 @@ const client = new stytch.Client({
   }
 }
 
-// Route to get M2M access token
+// Get M2M access token
 async function getM2MAccessToken(db, clientId, clientSecret){
   try {
       // Get M2M access token (cached if possible)
@@ -78,7 +78,7 @@ async function getM2MAccessToken(db, clientId, clientSecret){
   }
 }
 
-// Route to search for an M2M client
+// Search for an M2M client
 router.get('/search-m2m-client', async (req, res) => {
     try {
       // Call Stytch endpoint to search for the M2M client
@@ -106,7 +106,7 @@ router.get('/search-m2m-client', async (req, res) => {
     }
   });
 
-// Route to update an M2M client
+// Update an M2M client
 router.put('/update-m2m-client/:clientId', async (req, res) => {
     try {
       const clientId = req.params.clientId;
@@ -132,7 +132,7 @@ router.put('/update-m2m-client/:clientId', async (req, res) => {
     }
   });
 
-// Route to start secret rotation
+// Start secret rotation
 async function startSecretRotation(db, client_id){
   try{
       // Start the secret rotation
@@ -157,7 +157,7 @@ async function startSecretRotation(db, client_id){
   }
 }
   
-// Route to complete the secret rotation
+// Complete the secret rotation
 async function completeSecretRotation(client_id){
     try{
         // Permanently switch the client_secret for the next_client_secret

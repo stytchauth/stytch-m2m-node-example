@@ -51,7 +51,7 @@ const paymentInfo = {
     destinationWalletId: 'yh809ikol7plo98',
   };
 
-// Endpoint to initiate the payment process
+// Initiate the payment process
 app.get('/initiate-payment', async (req, res) => {
    // Create an m2m client
    try{
