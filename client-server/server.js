@@ -40,11 +40,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 let db;
 
-// Mount stytch routes
+// Mount Stytch routes
 app.use(stytchHelpers.router)
 
 // Payment details of the pending outgoing debit
-const paymentDetails = {
+const paymentInfo = {
     customerId: '67uhjio098uhgt6l',
     debitAmount: 769,
     destinationWalletId: 'yh809ikol7plo98',
@@ -75,7 +75,7 @@ async function initiatePayment(accessToken) {
     const walletServerUrl = 'http://localhost:4000/api/check-balance'; // Replace with your resource server URL
     try {
         // Request customer balance from wallet server
-        const response = await axios.post(walletServerUrl, paymentDetails, {
+        const response = await axios.post(walletServerUrl, paymentInfo, {
             headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
@@ -83,10 +83,10 @@ async function initiatePayment(accessToken) {
         });
         const {customerName, walletBalance} = response.data
         // Check if the balance is sufficient for the transaction
-        if (walletBalance >= paymentDetails.debitAmount) {
+        if (walletBalance >= paymentInfo.debitAmount) {
             // Proceed with the transaction logic
             console.log('Transaction successful!');
-            return `${customerName} your payment of ${paymentDetails.debitAmount} to ${paymentDetails.destinationWalletId} was successful!`;
+            return `${customerName} your payment of ${paymentInfo.debitAmount} to ${paymentInfo.destinationWalletId} was successful!`;
         }
         console.log('Insufficient balance. Transaction failed.');
         return 'Insufficient balance. Transaction failed.';
@@ -102,7 +102,7 @@ app.use((err, req, res, next) => {
     res.status(500).send('Something went wrong!');
 });
   
-  // Start the client server
-  app.listen(PORT, () => {
-    console.log(`Client Server is running on port ${PORT}`);
+// Start the client server
+app.listen(PORT, () => {
+    console.log(`Client server is running on port ${PORT}`);
 });

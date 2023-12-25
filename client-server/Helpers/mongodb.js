@@ -19,7 +19,7 @@ async function storeCredentials(db, credentials) {
    }
 }
 
-// Helper Function to retrieve access token from MongoDB
+// Helper function to retrieve access token from MongoDB
 async function getAccessToken(db) {
     try{
         return await db.collection('accessToken').findOne({});

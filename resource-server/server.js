@@ -17,8 +17,8 @@ app.use(helmet());
 app.use(morgan('combined'));
 app.use(express.json());
 
-// Customer details on the wallet server
-const customerDetails = [
+// Wallet details of the customer on the wallet service
+const walletInfo = [
     { customerId: '67uhjio098uhgt6l', customerName: 'john_doe', walletId: 'oipk9ifgl7yto9w', walletBalance: 1790 },
     { customerId: 'plu8iio0t3uhh06h', customerName: 'jane_doe', walletId: 'ui099jlolrrao6g', walletBalance: 970 },
   ];
@@ -26,7 +26,7 @@ const customerDetails = [
 // Routes
 app.post('/api/check-balance', authorizeToken('read:users'), (req, res) => {
   const {customerId} = req.body;
-  const customer = customerDetails.find((customer) => customer.customerId === customerId);
+  const customer = walletInfo.find((customer) => customer.customerId === customerId);
   if(customer){
     res.json({customerName: customer.customerName, walletId: customer.walletId, walletBalance: customer.walletBalance})
   }else{
@@ -41,7 +41,7 @@ app.use((err, req, res, next) => {
     res.status(500).send('Something went wrong!', err);
 });
   
-  // Start the server
-  app.listen(PORT, () => {
+// Start the server
+app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });

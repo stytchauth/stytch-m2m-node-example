@@ -3,7 +3,7 @@ const dotenv = require('dotenv');
 const stytch = require('stytch');
 
 dotenv.config();
-//Initializing Stytch client
+// Initializing Stytch client
 const client = new stytch.Client({
   project_id: process.env.STYTCH_PROJECT_ID,
   secret: process.env.STYTCH_SECRET,
@@ -29,7 +29,7 @@ const authorizeTokenMiddleware = (requiredScope) => {
     } catch (error) {
       console.error('Error in middleware:', error);
       res.status(error.response ? error.response.status : 500).json({
-        error: error.response ? error.response.data : 'Internal Server Error',
+        error: error.response ? error.response.data : 'Internal server error',
       });
     }
   }

@@ -17,14 +17,14 @@ const client = new stytch.Client({
       // Check if M2M credentials are available in MongoDB
       const storedCredentials = await mongodbHelpers.getCredentials(db);
       if (!storedCredentials.client_id || !storedCredentials.client_secret) {
-          // If not available, create a new m2m client and store the credentials
+          // If not available, create a new M2M client and store the credentials
           console.log('m2m client credentials is not available')
           const params = {
               client_name: 'payment-service',
               scopes: ['read:users', 'write:users'],
           };
           const response = await client.m2m.clients.create(params)
-          //set time to rotate secret
+          // Set time to rotate secret
           const expiresAt = Date.now() + 1800 * 1000; // Set expiration time to 30 mins (adjust as needed)
           const m2mClient = {
               client_id: response.m2m_client.client_id,
@@ -38,7 +38,7 @@ const client = new stytch.Client({
           //30 mins elapsed, start secret rotation
           const m2mClient = await startSecretRotation(db, storedCredentials.client_id);
 
-          //complete the rotation
+          // Complete the rotation
           await completeSecretRotation(storedCredentials.client_id);
           return m2mClient;
       }
@@ -110,7 +110,7 @@ async function getM2MAccessToken(db, clientId, clientSecret){
         // Get M2M access token (cached if possible)
         const accessTokenInfo = await mongodbHelpers.getAccessToken(db);
         if (accessTokenInfo && Date.now() < accessTokenInfo.expires_at) {
-            // Use the cached token if it's valid
+            // Use the cached token if it is valid
             return accessTokenInfo.access_token;
         } 
         // If the cached token is expired or not available, request a new one
@@ -135,14 +135,14 @@ async function getM2MAccessToken(db, clientId, clientSecret){
 // Route to start secret rotation
 async function startSecretRotation(db, client_id){
   try{
-      //start the secret rotation
+      // Start the secret rotation
       const params = {
           client_id: client_id
       }
       const response = await client.m2m.clients.secrets.rotateStart(params)
-        //time to rotate secret
+        // Time to rotate secret
         const expiresAt = Date.now() + 1800 * 1000; // Set expiration time to 30 mins (adjust as needed)
-        //switch the old client_secret for the next_client_secret
+        // Switch the old client_secret for the next_client_secret
       const m2mClient = {
           client_id: response.m2m_client.client_id,
           client_secret: response.m2m_client.next_client_secret,
