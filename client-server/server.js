@@ -50,7 +50,6 @@ const paymentInfo = {
 
 // Initiate the payment process
 app.get('/initiate-payment', async (req, res) => {
-    // Create an m2m client
     try {
     // Connect to MongoDB and set up routes and server
         db = await connectToMongoDB();
