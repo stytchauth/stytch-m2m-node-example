@@ -54,12 +54,14 @@ app.get('/initiate-payment', async (req, res) => {
     try {
     // Connect to MongoDB and set up routes and server
         db = await connectToMongoDB();
-        const m2mClient = await stytchHelpers.createM2MClient(db);
+        const m2mClient = await stytchHelpers.getM2MClient(db);
+        console.log(m2mClient);
         // Get M2M access token (cached if possible)
-        const accessToken = await stytchHelpers.getM2MAccessToken(db, m2mClient.client_id, m2mClient.client_secret);
+        const {client_id, client_secret} = m2mClient;
+        const accessToken = await stytchHelpers.getM2MAccessToken(db, client_id, client_secret);
+        console.log(accessToken);
         // Initiate payment
         const walletResponse = await initiatePayment(accessToken);
-
         res.json(walletResponse);
     }
     catch (err) {

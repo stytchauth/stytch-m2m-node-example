@@ -66,38 +66,13 @@ router.put('/update-m2m-client/:clientId', async (req, res) => {
 
 
 // Create new M2M client 
-async function createM2MClient(db) {
+async function getM2MClient(db) {
     try {
         // Check if M2M credentials are available in MongoDB
         const storedCredentials = await mongodbHelpers.getCredentials(db);
-        if (!storedCredentials.client_id || !storedCredentials.client_secret) {
-            // If not available, create a new M2M client and store the credentials
-            console.log('m2m client credentials is not available');
-            const params = {
-                client_name: 'payment-service',
-                scopes: ['read:users', 'write:users']
-            };
-            const response = await client.m2m.clients.create(params);
-            // Set time to rotate secret
-            const expiresAt = (Date.now() + 1800) * 1000; // Set expiration time to 30 mins (adjust as needed)
-            const m2mClient = {
-                client_id: response.m2m_client.client_id,
-                client_secret: response.m2m_client.client_secret,
-                expiresAt: expiresAt
-            };
-            // Store the new credentials securely in MongoDB
-            await mongodbHelpers.storeCredentials(db, m2mClient);
-            return m2mClient;
-        } else if (Date.now() > storedCredentials.expiresAt) {
-            //30 mins elapsed, start secret rotation
-            const m2mClient = await startSecretRotation(db, storedCredentials.client_id);
-            // Complete the rotation
-            await completeSecretRotation(storedCredentials.client_id);
-            return m2mClient;
-        }
         return storedCredentials;
     } catch (err) {
-        console.error('Error creating M2M client:', err.response);
+        console.error('Error getting M2M client:', err.response);
         throw err;
     }
 }
@@ -115,7 +90,7 @@ async function getM2MAccessToken(db, clientId, clientSecret) {
         const params = {
             client_id: clientId,
             client_secret: clientSecret,
-            scopes: ['read:users', 'write:users'], // Adjust scopes as needed
+            scopes: ['read:users'], // Adjust scopes as needed
             grant_type: 'client_credentials'
         };
         const response = await client.m2m.token(params);
@@ -171,7 +146,7 @@ async function completeSecretRotation(client_id) {
 
 module.exports = {
     router,
-    createM2MClient,
+    getM2MClient,
     getM2MAccessToken,
     startSecretRotation,
     completeSecretRotation
