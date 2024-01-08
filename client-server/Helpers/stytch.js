@@ -95,7 +95,7 @@ async function getM2MAccessToken(db, clientId, clientSecret) {
         };
         const response = await client.m2m.token(params);
         // Save new access token to db
-        const expiresAt = (Date.now() + response.expires_in) * 1000; // Set expiration time to 1 hour (adjust as needed)
+        const expiresAt = (Date.now() + response.expires_in) * 1000; // use the provided time milliseconds
         await mongodbHelpers.storeAccessToken(db, response.access_token, expiresAt);
       
         return response.access_token;
@@ -105,23 +105,22 @@ async function getM2MAccessToken(db, clientId, clientSecret) {
     }
 }
 // Start secret rotation
-async function startSecretRotation(db, client_id) {
+async function startSecretRotation(db) {
     try {
+        const client_id = await getM2MClient(db);
         // Start the secret rotation
         const params = {
             client_id: client_id
         };
         const response = await client.m2m.clients.secrets.rotateStart(params);
-        // Time to rotate secret
-        const expiresAt = (Date.now() + 1800) * 1000; // Set expiration time to 30 mins (adjust as needed)
         // Switch the old client_secret for the next_client_secret
         const m2mClient = {
             client_id: response.m2m_client.client_id,
-            client_secret: response.m2m_client.next_client_secret,
-            expiresAt: expiresAt
+            client_secret: response.m2m_client.next_client_secret
         };
         // Store the new credentials securely in MongoDB
         await mongodbHelpers.storeCredentials(db, m2mClient);
+        await completeSecretRotation(client_id);
         return m2mClient;
     } catch (err) {
         console.error('Error starting secret rotation:', err.response);
