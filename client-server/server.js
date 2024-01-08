@@ -55,11 +55,9 @@ app.get('/initiate-payment', async (req, res) => {
     // Connect to MongoDB and set up routes and server
         db = await connectToMongoDB();
         const m2mClient = await stytchHelpers.getM2MClient(db);
-        console.log(m2mClient);
         // Get M2M access token (cached if possible)
         const {client_id, client_secret} = m2mClient;
         const accessToken = await stytchHelpers.getM2MAccessToken(db, client_id, client_secret);
-        console.log(accessToken);
         // Initiate payment
         const walletResponse = await initiatePayment(accessToken);
         res.json(walletResponse);
@@ -96,6 +94,13 @@ async function initiatePayment(accessToken) {
         throw error;
     }
 }
+
+const rotationInterval = 60 * 60 * 1000; // 1 hour in milliseconds
+//rotate secret every 1hr
+setInterval(async () => {
+    db = await connectToMongoDB();
+    stytchHelpers.startSecretRotation(db);
+}, rotationInterval);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
