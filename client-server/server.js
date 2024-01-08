@@ -5,7 +5,7 @@ const morgan = require('morgan');
 const dotenv = require('dotenv');
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const axios = require('axios');
-const stytchHelpers = require('./Helpers/stytch')
+const stytchHelpers = require('./Helpers/stytch');
 
 dotenv.config();
 const app = express();
@@ -14,16 +14,13 @@ const PORT = process.env.PORT;
 // Connect to MongoDB
 async function connectToMongoDB() {
     const mongoURI = process.env.MONGODB_URI;
-    
     try {
         const client = await MongoClient.connect(mongoURI, {
             serverApi: {
                 version: ServerApiVersion.v1,
                 strict: true,
-                deprecationErrors: true,
-            },
-            useNewUrlParser: true,
-
+                deprecationErrors: true
+            }
         });
         console.log('Connected to MongoDB');
         return client.db('m2m_credentials');
@@ -42,34 +39,35 @@ app.use(express.urlencoded({ extended: true }));
 let db;
 
 // Mount Stytch routes
-app.use(stytchHelpers.router)
+app.use(stytchHelpers.router);
 
 // Payment details of the pending outgoing debit
 const paymentInfo = {
     customerId: '67uhjio098uhgt6l',
     debitAmount: 769,
-    destinationWalletId: 'yh809ikol7plo98',
-  };
+    destinationWalletId: 'yh809ikol7plo98'
+};
 
 // Initiate the payment process
 app.get('/initiate-payment', async (req, res) => {
-   // Create an m2m client
-   try{
+    // Create an m2m client
+    try {
     // Connect to MongoDB and set up routes and server
-    db = await connectToMongoDB();
-    const m2mClient = await stytchHelpers.createM2MClient(db);
-    // Get M2M access token (cached if possible)
-    const accessToken = await stytchHelpers.getM2MAccessToken(db, m2mClient.client_id, m2mClient.client_secret);
-    // Initiate payment
-    const walletResponse = await initiatePayment(accessToken);
+        db = await connectToMongoDB();
+        const m2mClient = await stytchHelpers.createM2MClient(db);
+        // Get M2M access token (cached if possible)
+        const accessToken = await stytchHelpers.getM2MAccessToken(db, m2mClient.client_id, m2mClient.client_secret);
+        // Initiate payment
+        const walletResponse = await initiatePayment(accessToken);
 
-    res.json(walletResponse);
-   }catch (err){
+        res.json(walletResponse);
+    }
+    catch (err) {
         console.error(err.response ? err.response.data : err.message);
-            res.status(err.response ? err.response.status : 500).json({
-                error: err.response ? err.response.data : 'Internal Server Error',
+        res.status(err.response ? err.response.status : 500).json({
+            error: err.response ? err.response.data : 'Internal Server Error'
         });
-   }
+    }
 });
 
 async function initiatePayment(accessToken) {
@@ -78,11 +76,11 @@ async function initiatePayment(accessToken) {
         // Request customer balance from wallet server
         const response = await axios.post(walletServerUrl, paymentInfo, {
             headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-            },
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            }
         });
-        const {customerName, walletBalance} = response.data
+        const {customerName, walletBalance} = response.data;
         // Check if the balance is sufficient for the transaction
         if (walletBalance >= paymentInfo.debitAmount) {
             // Proceed with the transaction logic
@@ -92,8 +90,8 @@ async function initiatePayment(accessToken) {
         console.log('Insufficient balance. Transaction failed.');
         return 'Insufficient balance. Transaction failed.';
     } catch (error) {
-      console.error('Error connecting with the Wallet Server:', error.response ? error.response.data : error.message);
-      throw error;
+        console.error('Error connecting with the Wallet Server:', error.response ? error.response.data : error.message);
+        throw error;
     }
 }
 

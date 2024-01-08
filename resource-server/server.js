@@ -4,7 +4,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
 const stytch = require('stytch');
-const authorizeToken = require('./middleware/authorizeToken')
+const authorizeToken = require('./middleware/authorizeToken');
 
 dotenv.config();
 
@@ -20,18 +20,18 @@ app.use(express.json());
 // Customer's wallet details
 const walletInfo = [
     { customerId: '67uhjio098uhgt6l', customerName: 'john_doe', walletId: 'oipk9ifgl7yto9w', walletBalance: 1790 },
-    { customerId: 'plu8iio0t3uhh06h', customerName: 'jane_doe', walletId: 'ui099jlolrrao6g', walletBalance: 970 },
-  ];
+    { customerId: 'plu8iio0t3uhh06h', customerName: 'jane_doe', walletId: 'ui099jlolrrao6g', walletBalance: 970 }
+];
 
 // Route
 app.post('/api/check-balance', authorizeToken('read:users'), (req, res) => {
-  const {customerId} = req.body;
-  const customer = walletInfo.find((customer) => customer.customerId === customerId);
-  if(customer){
-    res.json({customerName: customer.customerName, walletId: customer.walletId, walletBalance: customer.walletBalance})
-  }else{
-    res.status(400).json({error: 'Invalid customer'})
-  }
+    const {customerId} = req.body;
+    const customer = walletInfo.find((customer) => customer.customerId === customerId);
+    if (customer) {
+        res.json({customerName: customer.customerName, walletId: customer.walletId, walletBalance: customer.walletBalance});
+    } else {
+        res.status(400).json({error: 'Invalid customer'});
+    }
 });
 
 
