@@ -3,7 +3,6 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
-const { MongoClient, ServerApiVersion } = require('mongodb');
 const axios = require('axios');
 const stytchHelpers = require('./Helpers/stytch');
 
