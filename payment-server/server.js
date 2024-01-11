@@ -11,32 +11,12 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT;
 
-// Connect to MongoDB
-async function connectToMongoDB() {
-    const mongoURI = process.env.MONGODB_URI;
-    try {
-        const client = await MongoClient.connect(mongoURI, {
-            serverApi: {
-                version: ServerApiVersion.v1,
-                strict: true,
-                deprecationErrors: true
-            }
-        });
-        console.log('Connected to MongoDB');
-        return client.db('m2m_credentials');
-    } catch (err) {
-        console.error('Error connecting to MongoDB:', err);
-        throw err;
-    }
-}
-
 // Middleware
 app.use(cors());
 app.use(helmet());
 app.use(morgan('combined'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-let db;
 
 // Mount Stytch routes
 app.use(stytchHelpers.router);
@@ -51,12 +31,10 @@ const paymentInfo = {
 // Initiate the payment process
 app.get('/initiate-payment', async (req, res) => {
     try {
-    // Connect to MongoDB and set up routes and server
-        db = await connectToMongoDB();
-        const m2mClient = await stytchHelpers.getM2MClient(db);
-        // Get M2M access token (cached if possible)
-        const {client_id, client_secret} = m2mClient;
-        const accessToken = await stytchHelpers.getM2MAccessToken(db, client_id, client_secret);
+        const clientId = process.env.CLIENT_ID;
+        const clientSecret = process.env.CLIENT_SECRET;
+        // Get M2M access token
+        const accessToken = await stytchHelpers.getM2MAccessToken(clientId, clientSecret);
         // Initiate payment
         const walletResponse = await initiatePayment(accessToken);
         res.json(walletResponse);
@@ -93,13 +71,6 @@ async function initiatePayment(accessToken) {
         throw error;
     }
 }
-
-const rotationInterval = 60 * 60 * 1000; // 1 hour in milliseconds
-//rotate secret every 1hr
-setInterval(async () => {
-    db = await connectToMongoDB();
-    stytchHelpers.startSecretRotation(db);
-}, rotationInterval);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
