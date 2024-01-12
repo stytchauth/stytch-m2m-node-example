@@ -10,10 +10,10 @@ The application utilizes Stytch’s M2M endpoints to create M2M applications, re
 
 The example application has two directories: a payment-server that’s responsible for processing outgoing debits from a PayPal customer's wallet, and a wallet-server that holds the protected resource that the payment-server needs secure access to (“walletInfo”).
 ### Two main directories
-- Payment-server (holds the stytch.js implementation, the mongodb.js helper functions, and the server.js file for initiating payment).
+- Payment-server (holds the stytch.js implementation and the server.js file for initiating payment).
 * Wallet-server (holds the middleware directory that contains the authorizeToken.js implementation and the server.js file that contains the customer’s wallet balance).
 
-The payment-server directory contains a helper directory that holds the stytch.js file with our Stytch implementation, except for authorizing access tokens. The helper directory also holds a mongodb.js file that contains our MongoDB helper functions to persist and access our stored credentials from storage. In addition, the payment-server houses a server.js file, which serves as the directory's entry point, mounts the "/initiate-payment" route to process outward payments and handles M2M client creation via stytch.js.
+The payment-server directory contains a helper directory that holds the stytch.js file with our Stytch implementation, except for authorizing access tokens. The payment-server also utilizes `node-cache` in the `stytch.js` helper functions to persist and access our access tokens. In addition, the payment-server houses a server.js file, which serves as the directory's entry point, mounts the "/initiate-payment" route to process outward payments and handles M2M client creation via stytch.js.
 
 On the other hand, the wallet-server directory holds a middleware directory that contains an authorizeToken.js file. This file authorizes access tokens with the necessary scopes before granting access to the protected resource. The wallet-server also contains a server.js file which holds the protected resource (“walletInfo”) and mounts the “/api/check-balance” route to return the requested customer’s wallet details, specifically their “walletId” and “walletBalance”.
 ## Set up
@@ -49,10 +49,11 @@ In the root of both the payment-server and wallet-server directories, create a .
 
 ```
 //.env file for the (payment-server)
-PORT=5000
+PORT=6000
 STYTCH_PROJECT_ID = 'Provide Your Stytch Project Id'
 STYTCH_SECRET = 'Provide Your Stytch Project Secret'
-MONGODB_URI = 'mongodb+srv://<username>:<password>@<cluster-address>/<database>?retryWrites=true&w=majority'
+CLIENT_ID = 'Provide Your M2M Client Id'
+CLIENT_SECRET = 'Provide Your M2M Client Secret'
 
 //.env file for the (wallet-server)
 PORT=4000
@@ -70,7 +71,7 @@ npx nodemon
 npx nodemon
 ```
 
-The payment-server (Payment Service) will be available at http://localhost:5000, and the wallet-server (Wallet Service) will be available at http://localhost:4000 when you run them locally on your machine. 
+The payment-server (Payment Service) will be available at http://localhost:6000, and the wallet-server (Wallet Service) will be available at http://localhost:4000 when you run them locally on your machine. 
 ## Get help and join the community
 ### 💬 Stytch community Slack
 Join the discussion, ask questions, and suggest new features in our [Slack community](https://stytch.slack.com/join/shared_invite/zt-nil4wo92-jApJ9Cl32cJbEd9esKkvyg#/shared-invite/email)!
