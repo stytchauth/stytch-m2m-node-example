@@ -4,7 +4,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
 const axios = require('axios');
-const stytchHelpers = require('./Helpers/stytch');
+const stytchHelpers = require('./helper/stytch');
 
 dotenv.config();
 const app = express();
