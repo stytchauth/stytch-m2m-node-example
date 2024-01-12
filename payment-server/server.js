@@ -47,7 +47,7 @@ app.get('/initiate-payment', async (req, res) => {
 });
 
 async function initiatePayment(accessToken) {
-    const walletServerUrl = 'http://localhost:4000/api/check-balance'; // Replace with your resource server URL
+    const walletServerUrl = 'http://localhost:4000/api/check-balance'; // Replace with your wallet-server URL
     try {
         // Request customer balance from wallet server
         const response = await axios.post(walletServerUrl, paymentInfo, {
