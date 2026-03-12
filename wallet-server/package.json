@@ -17,7 +17,7 @@
     "express": "^4.18.2",
     "helmet": "^7.1.0",
     "morgan": "^1.10.0",
-    "nodemon": "^3.0.2",
+    "nodemon": "^3.1.11",
     "request": "^2.88.2",
     "stytch": "^9.1.0"
   }
