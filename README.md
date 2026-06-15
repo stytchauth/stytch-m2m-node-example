@@ -77,4 +77,4 @@ The payment-server (Payment Service) will be available at http://localhost:6000,
 Join the discussion, ask questions, and suggest new features in our [Slack community](https://stytch.slack.com/join/shared_invite/zt-nil4wo92-jApJ9Cl32cJbEd9esKkvyg#/shared-invite/email)!
 
 ### ❓ Need support?
-Check out the [Stytch Forum](https://forum.stytch.com/) or email us at support@stytch.com.
+Check out our support options [here](https://stytch.com/docs/resources/get-support).
